@@ -1,26 +1,54 @@
 import { Outlet } from "react-router-dom"
-import { Button } from 'antd-mobile'
 import { useEffect } from "react"
 import { useDispatch } from "react-redux"
 import { getBillList } from "@/store/modules/billStore"
+import './index.scss'
+import {
+  BillOutline,
+  AddCircleOutline,
+  CalculatorOutline,
+} from 'antd-mobile-icons'
+import { TabBar } from 'antd-mobile'
+import { useNavigate } from 'react-router-dom'
+
+const tabs = [
+  {
+    key: '/',
+    title: '月度账单',
+    icon: <BillOutline />,
+  },
+  {
+    key: '/new',
+    title: '记账',
+    icon: <AddCircleOutline />,
+  },
+  {
+    key: '/year',
+    title: '年度账单',
+    icon: <CalculatorOutline />,
+  },
+]
 
 const Layout = () => {
   const dispatch = useDispatch()
   useEffect(() => {
     dispatch(getBillList())
   }, [dispatch])
+  const navigate = useNavigate()
   return (
-    <div>
+    <div className="layout">
       {/* 如果不显示二级路由内容，要么是没有写出口，要么是出口放的位置不对，应该放在对应的一级路由中 */}
-      <Outlet />
-
-      我是Layout
-      {/* 测试全局生效样式 */}
-      <Button color='primary'>测试全局</Button>
-      <div className="purple">
-        <Button color='primary'>测试局部</Button>
+      <div className="container">
+        <Outlet />
       </div>
-    </div>
+      <div className="footer">
+        <TabBar onChange={value => { navigate(value) }}>
+          {tabs.map(item => (
+            <TabBar.Item key={item.key} icon={item.icon} title={item.title} />
+          ))}
+        </TabBar>
+      </div>
+    </div >
   )
 }
 
