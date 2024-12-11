@@ -1,7 +1,14 @@
 import { Outlet } from "react-router-dom"
 import { Button } from 'antd-mobile'
+import { useEffect } from "react"
+import { useDispatch } from "react-redux"
+import { getBillList } from "@/store/modules/billStore"
 
 const Layout = () => {
+  const dispatch = useDispatch()
+  useEffect(() => {
+    dispatch(getBillList())
+  }, [dispatch])
   return (
     <div>
       {/* 如果不显示二级路由内容，要么是没有写出口，要么是出口放的位置不对，应该放在对应的一级路由中 */}
