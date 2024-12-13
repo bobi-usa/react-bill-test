@@ -1,9 +1,11 @@
 import { NavBar, DatePicker } from 'antd-mobile'
 import './index.scss'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import classNames from 'classnames'
 // 使用 dayjs 格式化时间
 import dayjs from 'dayjs'
+import { useSelector } from 'react-redux'
+import _ from 'lodash'
 
 const Month = () => {
   // 控制弹框的打开和关闭
@@ -20,6 +22,41 @@ const Month = () => {
     // setCurrentDate(value)
     setCurrentDate(dayjs(value).format('YYYY-MM'))
   }
+
+  // 按月做数据的分组
+  const billList = useSelector(state => state.bill.billList)
+  /**
+   * useMemo hook
+   * 作用：类似Vue中的计算属性computed,可以用来做数据的二次处理，并且有缓存的作用，只有当
+   *      数据发生变化的时候才会重新计算
+   * 依赖项：所依赖的原始数据
+   */
+  const monthGroup = useMemo(() => {
+    // return出去计算之后的值
+    // return _.groupBy(billList, (item) => {
+    //   return dayjs(item.date).format('YYYY-MM');
+    // })
+
+    /**
+     * reduce 实现
+     * 说明：
+     * 1. 月份从0开始，所以+1
+     * 2. String.prototype.padStart 用于在月份前补0，第一个参数是位数，第二个是若没达
+     *    到位数的话拿什么补齐
+     * 3. 按月份分组后的结果是一个以 YYYY-MM 为键的对象，每个键对应一个数组，包含属于该
+     *    月份的所有数据项。
+     */
+    return billList.reduce((obj, item) => {
+      const date = new Date(item.date)
+      const yearMonth = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`
+      if (!obj[yearMonth]) obj[yearMonth] = []
+      obj[yearMonth].push(item)
+      return obj
+    }, {})
+
+    // 原始数据当作依赖项放进来
+  }, [billList])
+  console.log('monthGroup', monthGroup)
   return (
     <div className="monthlyBill">
       <NavBar className="nav" backIcon={false}>月度收支</NavBar>
