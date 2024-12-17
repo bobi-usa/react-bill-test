@@ -1,6 +1,6 @@
 import { NavBar, DatePicker } from 'antd-mobile'
 import './index.scss'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import classNames from 'classnames'
 // 使用 dayjs 格式化时间
 import dayjs from 'dayjs'
@@ -18,12 +18,7 @@ const Month = () => {
     return dayjs(new Date()).format('YYYY-MM')
   })
 
-  const onConfirm = (value) => {
-    // setCurrentDate(value)
-    setCurrentDate(dayjs(value).format('YYYY-MM'))
-  }
-
-  // 按月做数据的分组
+  // -------------------- 按月做数据的分组 start ---------------------------
   const billList = useSelector(state => state.bill.billList)
   /**
    * useMemo hook
@@ -56,7 +51,70 @@ const Month = () => {
 
     // 原始数据当作依赖项放进来
   }, [billList])
-  console.log('monthGroup', monthGroup)
+  // -------------------- 按月做数据的分组 end ---------------------------
+
+  // -------------------- 月份数据统计 start ----------------------------
+  // 当前时间月份下的数据集合
+  const [currentMonthList, setMonthList] = useState([])
+
+  // 时间选择确认回调
+  const onConfirm = (value) => {
+    // setCurrentDate(value)
+    setCurrentDate(dayjs(value).format('YYYY-MM'))
+    // 将对应月份的账单集合以数据的形式存放在数据里
+    setMonthList(monthGroup[dayjs(value).format('YYYY-MM')])
+  }
+
+  // 初始化的时候把当前月的统计数据显示出来
+  useEffect(() => {
+    setMonthList(monthGroup[currentDate])
+  }, [monthGroup])
+
+  // 计算月份统计数据：老师的方法
+  const monthResult = useMemo(() => {
+    console.log('currentMonthList', currentMonthList)
+    // 在 onConfirm 中 setMonthList 对应的月份数据没有, 赋值为undefined,故这里增加判断
+    if (!currentMonthList || !currentMonthList.length) return {
+      income: 0,
+      pay: 0,
+      total: 0,
+    }
+    const income = currentMonthList
+      .filter(item => item.type === 'income')
+      .reduce((a, c) => a + c.money, 0)
+    const pay = currentMonthList
+      .filter(item => item.type === 'pay')
+      .reduce((a, c) => a + c.money, 0)
+    return {
+      income,
+      pay,
+      total: income + pay,
+    }
+  }, [currentMonthList])
+
+  // 计算月份统计数据：我的方法
+  // const monthResult = useMemo(() => {
+  //   let totalObj = {
+  //     pay: 0,
+  //     income: 0,
+  //     total: 0,
+  //   }
+  //   if (!currentMonthList || !currentMonthList.length) return totalObj
+  //   return currentMonthList.reduce((totalObj, item) => {
+  //     // type: income 收入
+  //     // type: pay 支出
+  //     // 总和为结余
+  //     if (item.type === 'income') totalObj.income += item.money
+  //     if (item.type === 'pay') totalObj.pay += item.money
+
+  //     // 总和
+  //     totalObj.total += item.money
+  //     console.log('totalObj', totalObj)
+  //     return totalObj
+  //   }, totalObj)
+  // }, [currentMonthList])
+  // -------------------- 月份数据统计 end ----------------------------
+
   return (
     <div className="monthlyBill">
       <NavBar className="nav" backIcon={false}>月度收支</NavBar>
@@ -83,15 +141,15 @@ const Month = () => {
           {/* 统计区域 */}
           <div className="twoLineOverview">
             <div className="item">
-              <div className="money">{100}</div>
+              <div className="money">{monthResult.pay.toFixed(2)}</div>
               <div className="type">支出</div>
             </div>
             <div className="item">
-              <div className="money">{200}</div>
+              <div className="money">{monthResult.income.toFixed(2)}</div>
               <div className="type">收入</div>
             </div>
             <div className="item">
-              <div className="money">{200}</div>
+              <div className="money">{monthResult.total.toFixed(2)}</div>
               <div className="type">结余</div>
             </div>
           </div>
