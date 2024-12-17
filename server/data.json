@@ -16,6 +16,13 @@
     },
     {
       "type": "pay",
+      "money": -20,
+      "date": "2024-12-17 10:36:42",
+      "useFor": "drinks",
+      "id": 11
+    },
+    {
+      "type": "pay",
       "money": -99,
       "date": "2022-10-24 10:36:42",
       "useFor": "drinks",

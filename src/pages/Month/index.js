@@ -6,6 +6,7 @@ import classNames from 'classnames'
 import dayjs from 'dayjs'
 import { useSelector } from 'react-redux'
 import _ from 'lodash'
+import DailyBill from './components/DailyBill'
 
 const Month = () => {
   // 控制弹框的打开和关闭
@@ -115,6 +116,38 @@ const Month = () => {
   // }, [currentMonthList])
   // -------------------- 月份数据统计 end ----------------------------
 
+  // 当前月按照日来做分组
+  const dayGroup = useMemo(() => {
+    const groupDate = _.groupBy(currentMonthList, (item) => {
+      return dayjs(item.date).format('YYYY-MM-DD')
+    })
+    const keys = Object.keys(groupDate)
+    return {
+      groupDate,
+      keys,
+    }
+
+    // 老师的方法：
+    // return _.groupBy(currentMonthList, (item) => {
+    //   return dayjs(item.date).format('YYYY-MM-DD')
+    // })
+
+    // 我的方法：
+    // 防止使用reduce报错
+    // const validList = Array.isArray(currentMonthList) ? currentMonthList : []
+    // return validList.reduce((obj, item) => {
+    //   const date = new Date(item.date)
+    //   const year = date.getFullYear()
+    //   const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    //   // getDay()是获取星期几 getDate()才是获取几号
+    //   const day = date.getDate().toString().padStart(2, '0')
+    //   const yearMonthDay = `${year}-${month}-${day}`
+    //   if (!obj[yearMonthDay]) obj[yearMonthDay] = []
+    //   obj[yearMonthDay].push(item)
+    //   return obj
+    // }, {})
+  }, [currentMonthList])
+
   return (
     <div className="monthlyBill">
       <NavBar className="nav" backIcon={false}>月度收支</NavBar>
@@ -164,6 +197,11 @@ const Month = () => {
             onConfirm={onConfirm}
           />
         </div>
+
+        {/* 单日列表统计 */}
+        {dayGroup.keys.map(key => {
+          return <DailyBill key={key} date={key} billList={dayGroup.groupDate[key]} />
+        })}
       </div>
     </div>
   )
