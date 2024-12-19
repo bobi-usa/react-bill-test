@@ -118,6 +118,27 @@
       "date": "2023-02-28T16:00:00.000Z",
       "useFor": "salary",
       "id": 21
+    },
+    {
+      "id": "e6e4",
+      "type": "pay",
+      "money": -100,
+      "date": "2024-12-19T03:13:58.093Z",
+      "useFor": "taxi"
+    },
+    {
+      "id": "82f8",
+      "type": "income",
+      "money": 50,
+      "date": "2024-12-19T03:21:52.010Z",
+      "useFor": "financial"
+    },
+    {
+      "id": "8e5e",
+      "type": "pay",
+      "money": -20,
+      "date": "2024-12-19T03:24:56.498Z",
+      "useFor": "longdistance"
     }
   ]
 }
