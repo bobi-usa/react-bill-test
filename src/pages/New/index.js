@@ -7,6 +7,7 @@ import { billListData } from '@/contains'
 import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { addBillList } from '@/store/modules/billStore'
+import dayjs from 'dayjs'
 
 const New = () => {
   const navigate = useNavigate()
@@ -32,12 +33,25 @@ const New = () => {
     const data = {
       type: billType,
       money: billType === 'pay' ? -money : +money,
-      date: new Date(),
+      date,
       useFor,
     }
     console.log(data)
     dispatch(addBillList(data))
   }
+
+  // 控制时间选择器打开和关闭
+  const [dateVisible, setDateVisible] = useState(false)
+  // 存储选择的时间
+  const [date, setDate] = useState(() => new Date())
+  // 确认选择时间
+  const dateConfirm = (value) => {
+    setDate(value)
+    // 这里打印是上次date的值 是因为 React 的状态更新是异步的，因此在 dateConfirm 函数中，setDate(value) 之后立即打印 date 的值时，它仍然是更新前的值。
+    // 在 React 中，setDate(value) 会触发组件重新渲染，但不会立即更新 date 的值，因此打印的 dayjs(date).format('YYYY-MM-DD') 显示的是旧的状态。
+    // console.log(dayjs(date).format('YYYY-MM-DD'))
+  }
+
   return (
     <div className="keepAccounts">
       <NavBar className="nav" onBack={() => { navigate(-1) }}>
@@ -67,11 +81,20 @@ const New = () => {
           <div className="kaForm">
             <div className="date">
               <Icon type="calendar" className="icon" />
-              <div className="text">{'今天'}</div>
+              <div
+                className="text"
+                onClick={
+                  () => setDateVisible(true)}>{dayjs(date).format('YYYY-MM-DD')
+                }
+              </div>
+              {/* 时间选择器 */}
               <DatePicker
                 className="kaDate"
                 title="记账日期"
                 max={new Date()}
+                visible={dateVisible}
+                onConfirm={dateConfirm}
+                onClose={() => setDateVisible(false)}
               >
               </DatePicker>
             </div>
@@ -99,7 +122,8 @@ const New = () => {
                 {item.list.map(item => {
                   return (
                     <div
-                      className="item"
+                      // selected 类名表示选中
+                      className={classNames('item', useFor === item.type && 'selected')}
                       key={item.type}
                       onClick={() => { setUseFor(item.type) }}
                     >
